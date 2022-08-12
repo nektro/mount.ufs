@@ -348,7 +348,7 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset, stru
     int fd;
     int res;
 
-    if(fi == NULL)
+    if (fi == NULL)
         fd = open(path, O_RDONLY);
     else
         fd = fi->fh;
@@ -360,7 +360,7 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset, stru
     if (res == -1)
         res = -errno;
 
-    if(fi == NULL)
+    if (fi == NULL)
         close(fd);
     return res;
 }
@@ -371,7 +371,7 @@ static int xmp_write(const char *path, const char *buf, size_t size, off_t offse
     int res;
 
     (void) fi;
-    if(fi == NULL)
+    if (fi == NULL)
         fd = open(path, O_WRONLY);
     else
         fd = fi->fh;
@@ -383,7 +383,7 @@ static int xmp_write(const char *path, const char *buf, size_t size, off_t offse
     if (res == -1)
         res = -errno;
 
-    if(fi == NULL)
+    if (fi == NULL)
         close(fd);
     return res;
 }
@@ -428,7 +428,7 @@ static int xmp_fallocate(const char *path, int mode, off_t offset, off_t length,
     if (mode)
         return -EOPNOTSUPP;
 
-    if(fi == NULL)
+    if (fi == NULL)
         fd = open(path, O_WRONLY);
     else
         fd = fi->fh;
@@ -438,7 +438,7 @@ static int xmp_fallocate(const char *path, int mode, off_t offset, off_t length,
 
     res = -posix_fallocate(fd, offset, length);
 
-    if(fi == NULL)
+    if (fi == NULL)
         close(fd);
     return res;
 }
@@ -485,7 +485,7 @@ static ssize_t xmp_copy_file_range(const char *path_in, struct fuse_file_info *f
     int fd_in, fd_out;
     ssize_t res;
 
-    if(fi_in == NULL)
+    if (fi_in == NULL)
         fd_in = open(path_in, O_RDONLY);
     else
         fd_in = fi_in->fh;
@@ -493,7 +493,7 @@ static ssize_t xmp_copy_file_range(const char *path_in, struct fuse_file_info *f
     if (fd_in == -1)
         return -errno;
 
-    if(fi_out == NULL)
+    if (fi_out == NULL)
         fd_out = open(path_out, O_WRONLY);
     else
         fd_out = fi_out->fh;
@@ -503,8 +503,7 @@ static ssize_t xmp_copy_file_range(const char *path_in, struct fuse_file_info *f
         return -errno;
     }
 
-    res = copy_file_range(fd_in, &offset_in, fd_out, &offset_out, len,
-                  flags);
+    res = copy_file_range(fd_in, &offset_in, fd_out, &offset_out, len, flags);
     if (res == -1)
         res = -errno;
 
@@ -540,54 +539,54 @@ static off_t xmp_lseek(const char *path, off_t off, int whence, struct fuse_file
 }
 
 static const struct fuse_operations xmp_oper = {
-    .init           = xmp_init,
-    .getattr    = xmp_getattr,
-    .access        = xmp_access,
-    .readlink    = xmp_readlink,
-    .readdir    = xmp_readdir,
-    .mknod        = xmp_mknod,
-    .mkdir        = xmp_mkdir,
-    .symlink    = xmp_symlink,
-    .unlink        = xmp_unlink,
-    .rmdir        = xmp_rmdir,
-    .rename        = xmp_rename,
-    .link        = xmp_link,
-    .chmod        = xmp_chmod,
-    .chown        = xmp_chown,
-    .truncate    = xmp_truncate,
+    .init            = xmp_init,
+    .getattr         = xmp_getattr,
+    .access          = xmp_access,
+    .readlink        = xmp_readlink,
+    .readdir         = xmp_readdir,
+    .mknod           = xmp_mknod,
+    .mkdir           = xmp_mkdir,
+    .symlink         = xmp_symlink,
+    .unlink          = xmp_unlink,
+    .rmdir           = xmp_rmdir,
+    .rename          = xmp_rename,
+    .link            = xmp_link,
+    .chmod           = xmp_chmod,
+    .chown           = xmp_chown,
+    .truncate        = xmp_truncate,
 #ifdef HAVE_UTIMENSAT
-    .utimens    = xmp_utimens,
+    .utimens         = xmp_utimens,
 #endif
-    .open        = xmp_open,
-    .create     = xmp_create,
-    .read        = xmp_read,
-    .write        = xmp_write,
-    .statfs        = xmp_statfs,
-    .release    = xmp_release,
-    .fsync        = xmp_fsync,
+    .open            = xmp_open,
+    .create          = xmp_create,
+    .read            = xmp_read,
+    .write           = xmp_write,
+    .statfs          = xmp_statfs,
+    .release         = xmp_release,
+    .fsync           = xmp_fsync,
 #ifdef HAVE_POSIX_FALLOCATE
-    .fallocate    = xmp_fallocate,
+    .fallocate       = xmp_fallocate,
 #endif
 #ifdef HAVE_SETXATTR
-    .setxattr    = xmp_setxattr,
-    .getxattr    = xmp_getxattr,
-    .listxattr    = xmp_listxattr,
-    .removexattr    = xmp_removexattr,
+    .setxattr        = xmp_setxattr,
+    .getxattr        = xmp_getxattr,
+    .listxattr       = xmp_listxattr,
+    .removexattr     = xmp_removexattr,
 #endif
 #ifdef HAVE_COPY_FILE_RANGE
     .copy_file_range = xmp_copy_file_range,
 #endif
-    .lseek        = xmp_lseek,
+    .lseek           = xmp_lseek,
 };
 
 int main(int argc, char *argv[])
 {
     enum { MAX_ARGS = 10 };
-    int i,new_argc;
+    int i, new_argc;
     char *new_argv[MAX_ARGS];
 
     umask(0);
-            /* Process the "--plus" option apart */
+	/* Process the "--plus" option apart */
     for (i=0, new_argc=0; (i<argc) && (new_argc<MAX_ARGS); i++) {
         if (!strcmp(argv[i], "--plus")) {
             fill_dir_plus = FUSE_FILL_DIR_PLUS;
