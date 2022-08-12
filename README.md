@@ -1,4 +1,6 @@
 # mount.ufs
+![loc](https://sloc.xyz/github/nektro/mount.ufs)
+[![license](https://img.shields.io/github/license/nektro/mount.ufs.svg)](https://github.com/nektro/mount.ufs/blob/master/LICENSE)
 
 A FUSE filesystem client for mounting UFS partitions, mainly used by FreeBSD and its derivatives.
 
