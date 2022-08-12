@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
+    std.debug.assert(target.getOsTag() == .linux);
 
     const mode = b.standardReleaseOptions();
 
