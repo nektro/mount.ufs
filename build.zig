@@ -9,7 +9,6 @@ pub fn build(b: *std.build.Builder) void {
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.addCSourceFile("src/passthrough.c", &.{});
-    exe.addIncludeDir("src");
     exe.linkLibC();
     exe.linkSystemLibrary("fuse3");
     exe.install();
