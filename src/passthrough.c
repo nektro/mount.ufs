@@ -69,19 +69,6 @@ static int mknod_wrapper(int dirfd, const char *path, const char *link, int mode
 
 static int fill_dir_plus = 0;
 
-int xmp_readlink(const char *path, char *buf, size_t size)
-{
-    int res;
-
-    res = readlink(path, buf, size - 1);
-    if (res == -1)
-        return -errno;
-
-    buf[res] = '\0';
-    return 0;
-}
-
-
 int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags)
 {
     DIR *dp;

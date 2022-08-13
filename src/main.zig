@@ -138,7 +138,13 @@ export fn xmp_access(path: string, mask: c_int) c_int {
 }
 
 // static int xmp_readlink(const char *path, char *buf, size_t size)
-extern fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int;
+export fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int {
+    switch (readlink(path, buf, size - 1)) {
+        -1 => return -errno,
+        else => |res| buf[@intCast(usize, res)] = 0,
+    }
+    return 0;
+}
 
 // static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags)
 extern fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, offset: off_t, fi: *c.fuse_file_info, flags: c.fuse_readdir_flags) c_int;
@@ -247,3 +253,4 @@ extern threadlocal var errno: c_int;
 // wrong in stdlib
 extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
 extern fn access(pathname: string, mode: c_int) c_int;
+extern fn readlink(path: string, buf: mstring, bufsiz: size_t) ssize_t;
