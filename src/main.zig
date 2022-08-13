@@ -2,6 +2,7 @@ const std = @import("std");
 const string = [*:0]const u8;
 const mstring = [*:0]u8;
 const stringarray = [*:null]const ?string;
+const linux = std.os.linux;
 const mode_t = std.os.linux.mode_t;
 const size_t = usize;
 const ssize_t = isize;
@@ -119,7 +120,14 @@ export fn xmp_init(conn: *c.fuse_conn_info, cfg: *c.fuse_config) ?*anyopaque {
 }
 
 // static int xmp_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi)
-extern fn xmp_getattr(path: ?string, stbuf: *std.os.linux.Stat, fi: *c.fuse_file_info) c_int;
+export fn xmp_getattr(path: string, stbuf: *linux.Stat, fi: *c.fuse_file_info) c_int {
+    _ = fi;
+
+    if (lstat(path, stbuf) == -1) {
+        return -errno;
+    }
+    return 0;
+}
 
 // static int xmp_access(const char *path, int mask)
 extern fn xmp_access(path: string, mask: c_int) c_int;
@@ -207,7 +215,7 @@ extern fn xmp_removexattr(path: string, name: string) c_int;
 extern fn xmp_copy_file_range(path_in: string, fi_in: *c.fuse_file_info, offset_in: off_t, path_out: string, fi_out: *c.fuse_file_info, offset_out: off_t, len: size_t, flags: c_int) ssize_t;
 
 //
-//
+// missing from stdlib
 
 const Statvfs = extern struct {
     f_bsize: c_ulong,
@@ -228,3 +236,8 @@ comptime {
     std.debug.assert(@sizeOf(usize) == @sizeOf(u64)); // only 64bit host is currently supported
     // on 32bit fsblkcnt_t/fsfilcnt_t are c_ulong
 }
+extern threadlocal var errno: c_int;
+
+//
+// wrong in stdlib
+extern fn lstat(pathname: [*:0]const u8, statbuf: *linux.Stat) c_int;

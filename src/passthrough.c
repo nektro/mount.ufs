@@ -69,18 +69,6 @@ static int mknod_wrapper(int dirfd, const char *path, const char *link, int mode
 
 static int fill_dir_plus = 0;
 
-int xmp_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi)
-{
-    (void) fi;
-    int res;
-
-    res = lstat(path, stbuf);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_access(const char *path, int mask)
 {
     int res;
