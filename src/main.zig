@@ -71,7 +71,7 @@ export const xmp_oper: fuse_operations = .{
 };
 
 const fuse_operations = extern struct {
-    init: fn (*c.fuse_conn_info, *c.fuse_config) callconv(.C) *anyopaque,
+    init: fn (*c.fuse_conn_info, *c.fuse_config) callconv(.C) ?*anyopaque,
     getattr: fn (string, *std.os.linux.Stat, *c.fuse_file_info) callconv(.C) c_int,
     access: fn (string, c_int) callconv(.C) c_int,
     readlink: fn (string, mstring, size_t) callconv(.C) c_int,
@@ -104,7 +104,19 @@ const fuse_operations = extern struct {
 };
 
 // static void *xmp_init(struct fuse_conn_info *conn, struct fuse_config *cfg)
-extern fn xmp_init(conn: *c.fuse_conn_info, cfg: *c.fuse_config) *anyopaque;
+export fn xmp_init(conn: *c.fuse_conn_info, cfg: *c.fuse_config) ?*anyopaque {
+    _ = conn;
+    cfg.use_ino = 1;
+
+    // Pick up changes from lower filesystem right away. This is also necessary for better hardlink
+    // support. When the kernel calls the unlink() handler, it does not know the inode of the
+    // to-be-removed entry and can therefore not invalidate the cache of the associated inode -
+    // resulting in an incorrect st_nlink value being reported for any remaining hardlinks to this inode.
+    cfg.entry_timeout = 0;
+    cfg.attr_timeout = 0;
+    cfg.negative_timeout = 0;
+    return null;
+}
 
 // static int xmp_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi)
 extern fn xmp_getattr(path: ?string, stbuf: *std.os.linux.Stat, fi: *c.fuse_file_info) c_int;
