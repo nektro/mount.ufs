@@ -130,7 +130,12 @@ export fn xmp_getattr(path: string, stbuf: *linux.Stat, fi: *c.fuse_file_info) c
 }
 
 // static int xmp_access(const char *path, int mask)
-extern fn xmp_access(path: string, mask: c_int) c_int;
+export fn xmp_access(path: string, mask: c_int) c_int {
+    if (access(path, mask) == -1) {
+        return -errno;
+    }
+    return 0;
+}
 
 // static int xmp_readlink(const char *path, char *buf, size_t size)
 extern fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int;
@@ -241,3 +246,4 @@ extern threadlocal var errno: c_int;
 //
 // wrong in stdlib
 extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
+extern fn access(pathname: string, mode: c_int) c_int;

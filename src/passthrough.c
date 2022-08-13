@@ -69,17 +69,6 @@ static int mknod_wrapper(int dirfd, const char *path, const char *link, int mode
 
 static int fill_dir_plus = 0;
 
-int xmp_access(const char *path, int mask)
-{
-    int res;
-
-    res = access(path, mask);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_readlink(const char *path, char *buf, size_t size)
 {
     int res;
