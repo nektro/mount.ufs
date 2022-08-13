@@ -240,4 +240,4 @@ extern threadlocal var errno: c_int;
 
 //
 // wrong in stdlib
-extern fn lstat(pathname: [*:0]const u8, statbuf: *linux.Stat) c_int;
+extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
