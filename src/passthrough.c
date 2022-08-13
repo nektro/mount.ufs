@@ -543,7 +543,7 @@ static const struct fuse_operations xmp_oper = {
     .lseek           = xmp_lseek,
 };
 
-int main(int argc, char *argv[])
+int c_main(int argc, char *argv[])
 {
     enum { MAX_ARGS = 10 };
     int i, new_argc;
