@@ -213,5 +213,6 @@ const Statvfs = extern struct {
 const fsblkcnt_t = c_ulonglong;
 const fsfilcnt_t = c_ulonglong;
 comptime {
-    std.debug.assert(@sizeOf(usize) == @sizeOf(u64));
+    std.debug.assert(@sizeOf(usize) == @sizeOf(u64)); // only 64bit host is currently supported
+    // on 32bit fsblkcnt_t/fsfilcnt_t are c_ulong
 }
