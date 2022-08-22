@@ -30,7 +30,7 @@ extern fn umask(mask: mode_t) mode_t;
 // #define fuse_main(argc, argv, op, private_data)    fuse_main_real(argc, argv, op, sizeof(*(op)), private_data)
 // int fuse_main_real(int argc, char *argv[], const struct fuse_operations *op, size_t op_size, void *private_data);
 export fn fuse_main(argc: c_int, argv: stringarray, op: *const fuse_operations, private_data: ?*anyopaque) c_int {
-    return fuse_main_real(argc, @ptrCast([*c]const [*c]const u8, argv), op, @sizeOf(c.fuse_operations), private_data);
+    return fuse_main_real(argc, argv, op, @sizeOf(c.fuse_operations), private_data);
 }
 extern fn fuse_main_real(argc: c_int, argv: stringarray, op: *const fuse_operations, op_size: size_t, private_data: ?*anyopaque) c_int;
 
