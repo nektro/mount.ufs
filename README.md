@@ -13,7 +13,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_getattr`
     - [x] `xmp_access`
     - [x] `xmp_readlink`
-    - [ ] `xmp_readdir`
+    - [x] `xmp_readdir`
     - [ ] `xmp_mknod`
     - [ ] `xmp_mkdir`
     - [ ] `xmp_unlink`

@@ -11,6 +11,7 @@ const dev_t = std.os.linux.dev_t;
 const uid_t = std.os.linux.uid_t;
 const gid_t = std.os.linux.gid_t;
 const timespec = std.os.linux.timespec;
+const ino_t = std.os.linux.ino_t;
 
 const c = @cImport({
     @cDefine("FUSE_USE_VERSION", "31");
@@ -147,7 +148,22 @@ export fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int {
 }
 
 // static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags)
-extern fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, offset: off_t, fi: *c.fuse_file_info, flags: c.fuse_readdir_flags) c_int;
+export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, offset: off_t, fi: *c.fuse_file_info, flags: c.fuse_readdir_flags) c_int {
+    _ = offset;
+    _ = fi;
+    _ = flags;
+
+    const dp = opendir(path) orelse return -errno;
+    defer _ = closedir(dp);
+
+    while (readdir(dp)) |de| {
+        var st = std.mem.zeroes(c.struct_stat);
+        st.st_ino = de.d_ino;
+        st.st_mode = @as(c_uint, de.d_type) << 12;
+        if (filler.?(buf, de.d_name, &st, 0, 0) > 0) break;
+    }
+    return 0;
+}
 
 // static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 extern fn xmp_mknod(path: string, mode: mode_t, rdev: dev_t) c_int;
@@ -248,9 +264,21 @@ comptime {
     // on 32bit fsblkcnt_t/fsfilcnt_t are c_ulong
 }
 extern threadlocal var errno: c_int;
+const DIR = opaque {};
+extern fn opendir(name: string) ?*DIR;
+extern fn readdir(dirp: *DIR) ?*dirent;
+extern fn closedir(dirp: *DIR) c_int;
 
 //
 // wrong in stdlib
 extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
 extern fn access(pathname: string, mode: c_int) c_int;
 extern fn readlink(path: string, buf: mstring, bufsiz: size_t) ssize_t;
+
+const dirent = extern struct {
+    d_ino: ino_t,
+    d_off: off_t,
+    d_reclen: c_ushort,
+    d_type: u8,
+    d_name: *const [256]u8,
+};
