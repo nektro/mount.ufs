@@ -8,6 +8,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
 
 ## Current Status
 - [x] Get libfuse passthrough example building with Zig
+- [ ] Port passthrough code to be pure Zig
     - [x] `xmp_init`
     - [x] `xmp_getattr`
     - [x] `xmp_access`
@@ -38,7 +39,6 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [ ] `xmp_listxattr`
     - [ ] `xmp_removexattr`
     - [ ] `xmp_copy_file_range`
-- [ ] Port passthrough code to be pure Zig
 - [ ] Read access UFS
 - [ ] Write access UFS
 
