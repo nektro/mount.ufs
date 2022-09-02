@@ -166,7 +166,29 @@ export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, 
 }
 
 // static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
-extern fn xmp_mknod(path: string, mode: mode_t, rdev: dev_t) c_int;
+export fn xmp_mknod(path: string, mode: mode_t, rdev: dev_t) c_int {
+    if (mknod_wrapper(linux.AT.FDCWD, path, null, mode, rdev) == -1) return -errno;
+    return 0;
+}
+// static int mknod_wrapper(int dirfd, const char *path, const char *link, int mode, dev_t rdev)
+export fn mknod_wrapper(dirfd: c_int, path: string, link: ?string, mode: mode_t, rdev: dev_t) c_int {
+    if (linux.S.ISREG(mode)) {
+        const O = linux.O;
+        const res = openat(dirfd, path, O.CREAT | O.EXCL | O.WRONLY, mode);
+        if (res > 0) return close(res);
+        return res;
+    }
+    if (linux.S.ISDIR(mode)) {
+        return mkdirat(dirfd, path, mode);
+    }
+    if (linux.S.ISLNK(mode)) {
+        return symlinkat(link, dirfd, path);
+    }
+    if (linux.S.ISFIFO(mode)) {
+        return mkfifoat(dirfd, path, mode);
+    }
+    return mknodat(dirfd, path, mode, rdev);
+}
 
 // static int xmp_mkdir(const char *path, mode_t mode)
 extern fn xmp_mkdir(path: string, mode: mode_t) c_int;
@@ -268,12 +290,18 @@ const DIR = opaque {};
 extern fn opendir(name: string) ?*DIR;
 extern fn readdir(dirp: *DIR) ?*dirent;
 extern fn closedir(dirp: *DIR) c_int;
+extern fn mkfifoat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
 
 //
 // wrong in stdlib
 extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
 extern fn access(pathname: string, mode: c_int) c_int;
 extern fn readlink(path: string, buf: mstring, bufsiz: size_t) ssize_t;
+extern fn openat(dirfd: c_int, pathname: string, flags: c_int, mode: mode_t) c_int;
+extern fn close(fd: c_int) c_int;
+extern fn mkdirat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
+extern fn symlinkat(oldpath: ?string, newdirfd: c_int, newpath: string) c_int;
+extern fn mknodat(dirfd: c_int, pathname: string, mode: mode_t, dev: dev_t) c_int;
 
 const dirent = extern struct {
     d_ino: ino_t,

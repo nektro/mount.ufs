@@ -43,41 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-/*
- * Creates files on the underlying file system in response to a FUSE_MKNOD operation
- */
-static int mknod_wrapper(int dirfd, const char *path, const char *link, int mode, dev_t rdev)
-{
-    int res;
-
-    if (S_ISREG(mode)) {
-        res = openat(dirfd, path, O_CREAT | O_EXCL | O_WRONLY, mode);
-        if (res >= 0)
-            res = close(res);
-    } else if (S_ISDIR(mode)) {
-        res = mkdirat(dirfd, path, mode);
-    } else if (S_ISLNK(mode) && link != NULL) {
-        res = symlinkat(link, dirfd, path);
-    } else if (S_ISFIFO(mode)) {
-        res = mkfifoat(dirfd, path, mode);
-    } else {
-        res = mknodat(dirfd, path, mode, rdev);
-    }
-
-    return res;
-}
-
-int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
-{
-    int res;
-
-    res = mknod_wrapper(AT_FDCWD, path, NULL, mode, rdev);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_mkdir(const char *path, mode_t mode)
 {
     int res;

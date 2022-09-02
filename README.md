@@ -14,7 +14,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_access`
     - [x] `xmp_readlink`
     - [x] `xmp_readdir`
-    - [ ] `xmp_mknod`
+    - [x] `xmp_mknod`
     - [ ] `xmp_mkdir`
     - [ ] `xmp_unlink`
     - [ ] `xmp_rmdir`
