@@ -1,4 +1,5 @@
 const std = @import("std");
+const deps = @import("./deps.zig");
 
 pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
@@ -9,14 +10,7 @@ pub fn build(b: *std.build.Builder) void {
     const exe = b.addExecutable("mount.ufs", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
-    exe.addCSourceFile("src/passthrough.c", &.{
-        "-DHAVE_UTIMENSAT",
-        "-DHAVE_POSIX_FALLOCATE",
-        "-DHAVE_SETXATTR",
-        "-DHAVE_COPY_FILE_RANGE",
-    });
-    exe.linkLibC();
-    exe.linkSystemLibrary("fuse3");
+    deps.addAllTo(exe);
     exe.install();
 
     const run_cmd = exe.run();

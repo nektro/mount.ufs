@@ -2,4 +2,12 @@ id: i0xhsq87to7xwpypxllr4pm7lkv7nb3jtdc73gflwlorn1ni
 name: mount.ufs
 license: GPL-2.0
 description: FUSE filesystem client for mounting UFS partitions, mainly used by FreeBSD and its derivatives.
+c_source_files:
+  - src/passthrough.c
+c_source_flags:
+  - -DHAVE_UTIMENSAT
+  - -DHAVE_POSIX_FALLOCATE
+  - -DHAVE_SETXATTR
+  - -DHAVE_COPY_FILE_RANGE
 root_dependencies:
+  - src: system_lib fuse3
