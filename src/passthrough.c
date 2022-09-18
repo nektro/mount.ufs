@@ -43,17 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_mkdir(const char *path, mode_t mode)
-{
-    int res;
-
-    res = mkdir(path, mode);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_unlink(const char *path)
 {
     int res;

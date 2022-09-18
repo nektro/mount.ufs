@@ -191,7 +191,10 @@ export fn mknod_wrapper(dirfd: c_int, path: string, link: ?string, mode: mode_t,
 }
 
 // static int xmp_mkdir(const char *path, mode_t mode)
-extern fn xmp_mkdir(path: string, mode: mode_t) c_int;
+export fn xmp_mkdir(path: string, mode: mode_t) c_int {
+    if (mkdir(path, mode) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_unlink(const char *path)
 extern fn xmp_unlink(path: string) c_int;
@@ -302,6 +305,7 @@ extern fn close(fd: c_int) c_int;
 extern fn mkdirat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
 extern fn symlinkat(oldpath: ?string, newdirfd: c_int, newpath: string) c_int;
 extern fn mknodat(dirfd: c_int, pathname: string, mode: mode_t, dev: dev_t) c_int;
+extern fn mkdir(path: [*:0]const u8, mode: mode_t) c_int;
 
 const dirent = extern struct {
     d_ino: ino_t,
