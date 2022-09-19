@@ -122,7 +122,7 @@ export fn xmp_init(conn: *c.fuse_conn_info, cfg: *c.fuse_config) ?*anyopaque {
 }
 
 // static int xmp_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi)
-export fn xmp_getattr(path: string, stbuf: *linux.Stat, fi: *c.fuse_file_info) c_int {
+export fn xmp_getattr(path: string, stbuf: *linux.Stat, fi: *fuse_file_info) c_int {
     _ = fi;
 
     if (extrn.lstat(path, stbuf) == -1) {
@@ -149,7 +149,7 @@ export fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int {
 }
 
 // static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags)
-export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, offset: off_t, fi: *c.fuse_file_info, flags: c.fuse_readdir_flags) c_int {
+export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, offset: off_t, fi: *fuse_file_info, flags: c.fuse_readdir_flags) c_int {
     _ = offset;
     _ = fi;
     _ = flags;
@@ -229,14 +229,14 @@ export fn xmp_link(from: string, to: string) c_int {
 }
 
 // static int xmp_chmod(const char *path, mode_t mode, struct fuse_file_info *fi)
-export fn xmp_chmod(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int {
+export fn xmp_chmod(path: string, mode: mode_t, fi: *fuse_file_info) c_int {
     _ = fi;
     if (extrn.chmod(path, mode) == -1) return -errno;
     return 0;
 }
 
 // static int xmp_chown(const char *path, uid_t uid, gid_t gid, struct fuse_file_info *fi)
-export fn xmp_chown(path: string, uid: uid_t, gid: gid_t, fi: *c.fuse_file_info) c_int {
+export fn xmp_chown(path: string, uid: uid_t, gid: gid_t, fi: *fuse_file_info) c_int {
     _ = fi;
     if (extrn.lchown(path, uid, gid) == -1) return -errno;
     return 0;
@@ -306,7 +306,7 @@ export fn xmp_release(path: string, fi: *fuse_file_info) c_int {
 }
 
 // static int xmp_fsync(const char *path, int isdatasync, struct fuse_file_info *fi)
-export fn xmp_fsync(path: string, isdatasync: c_int, fi: *c.fuse_file_info) c_int {
+export fn xmp_fsync(path: string, isdatasync: c_int, fi: *fuse_file_info) c_int {
     // Just a stub. This method is optional and can safely be left unimplemented.
     _ = path;
     _ = isdatasync;
