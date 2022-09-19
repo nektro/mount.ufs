@@ -18,7 +18,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_mkdir`
     - [x] `xmp_unlink`
     - [x] `xmp_rmdir`
-    - [ ] `xmp_symlink`
+    - [x] `xmp_symlink`
     - [ ] `xmp_rename`
     - [ ] `xmp_link`
     - [ ] `xmp_chmod`

@@ -43,17 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_symlink(const char *from, const char *to)
-{
-    int res;
-
-    res = symlink(from, to);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_rename(const char *from, const char *to, unsigned int flags)
 {
     int res;
