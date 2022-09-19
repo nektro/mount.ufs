@@ -29,7 +29,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_read`
     - [x] `xmp_write`
     - [x] `xmp_statfs`
-    - [ ] `xmp_release`
+    - [x] `xmp_release`
     - [ ] `xmp_fsync`
     - [ ] `xmp_lseek`
 - [ ] Read access UFS

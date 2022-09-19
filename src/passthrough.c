@@ -43,13 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_release(const char *path, struct fuse_file_info *fi)
-{
-    (void) path;
-    close(fi->fh);
-    return 0;
-}
-
 int xmp_fsync(const char *path, int isdatasync, struct fuse_file_info *fi)
 {
     /* Just a stub.     This method is optional and can safely be left

@@ -82,7 +82,7 @@ const fuse_operations = extern struct {
     read: *const fn (string, mstring, size_t, off_t, ?*fuse_file_info) callconv(.C) c_int,
     write: *const fn (string, string, size_t, off_t, ?*fuse_file_info) callconv(.C) c_int,
     statfs: *const fn (string, *extrn.Statvfs) callconv(.C) c_int,
-    release: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
+    release: *const fn (string, *fuse_file_info) callconv(.C) c_int,
     fsync: *const fn (string, c_int, *c.fuse_file_info) callconv(.C) c_int,
     lseek: *const fn (string, off_t, c_int, *c.fuse_file_info) callconv(.C) off_t,
 };
@@ -280,7 +280,11 @@ export fn xmp_statfs(path: string, stbuf: *extrn.Statvfs) c_int {
 }
 
 // static int xmp_release(const char *path, struct fuse_file_info *fi)
-extern fn xmp_release(path: string, fi: *c.fuse_file_info) c_int;
+export fn xmp_release(path: string, fi: *fuse_file_info) c_int {
+    _ = path;
+    _ = extrn.close(@intCast(c_int, fi.fh));
+    return 0;
+}
 
 // static int xmp_fsync(const char *path, int isdatasync, struct fuse_file_info *fi)
 extern fn xmp_fsync(path: string, isdatasync: c_int, fi: *c.fuse_file_info) c_int;
