@@ -235,7 +235,11 @@ export fn xmp_chmod(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int {
 }
 
 // static int xmp_chown(const char *path, uid_t uid, gid_t gid, struct fuse_file_info *fi)
-extern fn xmp_chown(path: string, uid: uid_t, gid: gid_t, fi: *c.fuse_file_info) c_int;
+export fn xmp_chown(path: string, uid: uid_t, gid: gid_t, fi: *c.fuse_file_info) c_int {
+    _ = fi;
+    if (extrn.lchown(path, uid, gid) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_truncate(const char *path, off_t size, struct fuse_file_info *fi)
 extern fn xmp_truncate(path: string, size: off_t, fi: *c.fuse_file_info) c_int;
@@ -326,6 +330,7 @@ const extrn = struct {
     extern fn mkdir(path: string, mode: mode_t) c_int;
     extern fn link(oldpath: string, newpath: string) c_int;
     extern fn chmod(pathname: string, mode: mode_t) c_int;
+    extern fn lchown(pathname: string, owner: uid_t, group: gid_t) c_int;
 
     const dirent = extern struct {
         d_ino: ino_t,

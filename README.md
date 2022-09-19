@@ -22,7 +22,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_rename`
     - [x] `xmp_link`
     - [x] `xmp_chmod`
-    - [ ] `xmp_chown`
+    - [x] `xmp_chown`
     - [ ] `xmp_truncate`
     - [ ] `xmp_create`
     - [ ] `xmp_open`
