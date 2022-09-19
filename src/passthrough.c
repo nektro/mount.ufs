@@ -42,25 +42,3 @@
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
-
-off_t xmp_lseek(const char *path, off_t off, int whence, struct fuse_file_info *fi)
-{
-    int fd;
-    off_t res;
-
-    if (fi == NULL)
-        fd = open(path, O_RDONLY);
-    else
-        fd = fi->fh;
-
-    if (fd == -1)
-        return -errno;
-
-    res = lseek(fd, off, whence);
-    if (res == -1)
-        res = -errno;
-
-    if (fi == NULL)
-        close(fd);
-    return res;
-}

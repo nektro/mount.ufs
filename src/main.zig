@@ -84,7 +84,7 @@ const fuse_operations = extern struct {
     statfs: *const fn (string, *extrn.Statvfs) callconv(.C) c_int,
     release: *const fn (string, *fuse_file_info) callconv(.C) c_int,
     fsync: *const fn (string, c_int, *c.fuse_file_info) callconv(.C) c_int,
-    lseek: *const fn (string, off_t, c_int, *c.fuse_file_info) callconv(.C) off_t,
+    lseek: *const fn (string, off_t, c_int, ?*fuse_file_info) callconv(.C) off_t,
 };
 
 // static void *xmp_init(struct fuse_conn_info *conn, struct fuse_config *cfg)
@@ -296,7 +296,16 @@ export fn xmp_fsync(path: string, isdatasync: c_int, fi: *c.fuse_file_info) c_in
 }
 
 // static off_t xmp_lseek(const char *path, off_t off, int whence, struct fuse_file_info *fi)
-extern fn xmp_lseek(path: string, off: off_t, whence: c_int, fi: *c.fuse_file_info) off_t;
+export fn xmp_lseek(path: string, off: off_t, whence: c_int, fi: ?*fuse_file_info) off_t {
+    const fd: c_int = if (fi == null) extrn.open(path, linux.O.RDONLY) else @intCast(c_int, fi.?.fh);
+    if (fd == -1) return -errno;
+
+    const res = extrn.lseek(fd, off, whence);
+    if (res == -1) return errno;
+
+    _ = if (fi == null) extrn.close(fd);
+    return @intCast(c_int, res);
+}
 
 //
 //
@@ -345,6 +354,7 @@ const extrn = struct {
     extern fn pread(fd: c_int, buf: mstring, count: size_t, offset: off_t) ssize_t;
     extern fn pwrite(fd: c_int, buf: string, count: size_t, offset: off_t) ssize_t;
     extern fn statvfs(path: string, buf: *Statvfs) c_int;
+    extern fn lseek(fd: c_int, offset: off_t, whence: c_int) off_t;
 
     const dirent = extern struct {
         d_ino: ino_t,

@@ -31,7 +31,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_statfs`
     - [x] `xmp_release`
     - [x] `xmp_fsync`
-    - [ ] `xmp_lseek`
+    - [x] `xmp_lseek`
 - [ ] Read access UFS
 - [ ] Write access UFS
 
