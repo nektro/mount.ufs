@@ -197,7 +197,10 @@ export fn xmp_mkdir(path: string, mode: mode_t) c_int {
 }
 
 // static int xmp_unlink(const char *path)
-extern fn xmp_unlink(path: string) c_int;
+export fn xmp_unlink(path: string) c_int {
+    if (linux.unlink(path) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_rmdir(const char *path)
 extern fn xmp_rmdir(path: string) c_int;

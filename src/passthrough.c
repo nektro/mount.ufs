@@ -43,17 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_unlink(const char *path)
-{
-    int res;
-
-    res = unlink(path);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_rmdir(const char *path)
 {
     int res;
