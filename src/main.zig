@@ -87,7 +87,7 @@ const fuse_operations = extern struct {
     link: *const fn (string, string) callconv(.C) c_int,
     chmod: *const fn (string, mode_t, *c.fuse_file_info) callconv(.C) c_int,
     chown: *const fn (string, uid_t, gid_t, *c.fuse_file_info) callconv(.C) c_int,
-    truncate: *const fn (string, off_t, *c.fuse_file_info) callconv(.C) c_int,
+    truncate: *const fn (string, off_t, *fuse_file_info) callconv(.C) c_int,
     create: *const fn (string, mode_t, *c.fuse_file_info) callconv(.C) c_int,
     open: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
     read: *const fn (string, mstring, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
@@ -242,7 +242,14 @@ export fn xmp_chown(path: string, uid: uid_t, gid: gid_t, fi: *c.fuse_file_info)
 }
 
 // static int xmp_truncate(const char *path, off_t size, struct fuse_file_info *fi)
-extern fn xmp_truncate(path: string, size: off_t, fi: *c.fuse_file_info) c_int;
+export fn xmp_truncate(path: string, size: off_t, fi: ?*fuse_file_info) c_int {
+    if (fi != null) {
+        if (extrn.ftruncate(@intCast(c_int, fi.?.fh), size) == -1) return -errno;
+    } else {
+        if (extrn.truncate(path, size) == -1) return -errno;
+    }
+    return 0;
+}
 
 // static int xmp_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 extern fn xmp_create(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int;
@@ -331,6 +338,8 @@ const extrn = struct {
     extern fn link(oldpath: string, newpath: string) c_int;
     extern fn chmod(pathname: string, mode: mode_t) c_int;
     extern fn lchown(pathname: string, owner: uid_t, group: gid_t) c_int;
+    extern fn ftruncate(fd: c_int, length: off_t) c_int;
+    extern fn truncate(path: string, length: off_t) c_int;
 
     const dirent = extern struct {
         d_ino: ino_t,
@@ -339,4 +348,21 @@ const extrn = struct {
         d_type: u8,
         d_name: *const [256]u8,
     };
+};
+
+const fuse_file_info = packed struct {
+    flags: c_int,
+    writepage: u1,
+    direct_io: u1,
+    keep_cache: u1,
+    flush: u1,
+    nonseekable: u1,
+    flock_release: u1,
+    cache_readdir: u1,
+    noflush: u1,
+    padding: u24,
+    padding2: u32,
+    fh: u64,
+    lock_owner: u64,
+    poll_events: u32,
 };

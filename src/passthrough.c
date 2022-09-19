@@ -43,20 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_truncate(const char *path, off_t size, struct fuse_file_info *fi)
-{
-    int res;
-
-    if (fi != NULL)
-        res = ftruncate(fi->fh, size);
-    else
-        res = truncate(path, size);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 #ifdef HAVE_UTIMENSAT
 int xmp_utimens(const char *path, const struct timespec ts[2], struct fuse_file_info *fi)
 {
