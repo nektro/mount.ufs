@@ -228,7 +228,11 @@ export fn xmp_link(from: string, to: string) c_int {
 }
 
 // static int xmp_chmod(const char *path, mode_t mode, struct fuse_file_info *fi)
-extern fn xmp_chmod(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int;
+export fn xmp_chmod(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int {
+    _ = fi;
+    if (extrn.chmod(path, mode) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_chown(const char *path, uid_t uid, gid_t gid, struct fuse_file_info *fi)
 extern fn xmp_chown(path: string, uid: uid_t, gid: gid_t, fi: *c.fuse_file_info) c_int;
@@ -327,6 +331,7 @@ const extrn = struct {
     extern fn mknodat(dirfd: c_int, pathname: string, mode: mode_t, dev: dev_t) c_int;
     extern fn mkdir(path: string, mode: mode_t) c_int;
     extern fn link(oldpath: string, newpath: string) c_int;
+    extern fn chmod(pathname: string, mode: mode_t) c_int;
 
     const dirent = extern struct {
         d_ino: ino_t,
