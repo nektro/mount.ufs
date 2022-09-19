@@ -88,7 +88,7 @@ const fuse_operations = extern struct {
     chmod: *const fn (string, mode_t, *c.fuse_file_info) callconv(.C) c_int,
     chown: *const fn (string, uid_t, gid_t, *c.fuse_file_info) callconv(.C) c_int,
     truncate: *const fn (string, off_t, *fuse_file_info) callconv(.C) c_int,
-    create: *const fn (string, mode_t, *c.fuse_file_info) callconv(.C) c_int,
+    create: *const fn (string, mode_t, *fuse_file_info) callconv(.C) c_int,
     open: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
     read: *const fn (string, mstring, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
     write: *const fn (string, string, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
@@ -252,7 +252,12 @@ export fn xmp_truncate(path: string, size: off_t, fi: ?*fuse_file_info) c_int {
 }
 
 // static int xmp_create(const char *path, mode_t mode, struct fuse_file_info *fi)
-extern fn xmp_create(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int;
+export fn xmp_create(path: string, mode: mode_t, fi: *fuse_file_info) c_int {
+    const res = extrn.open(path, fi.flags, mode);
+    if (res == -1) return -errno;
+    fi.fh = @intCast(u64, res);
+    return 0;
+}
 
 // static int xmp_open(const char *path, struct fuse_file_info *fi)
 extern fn xmp_open(path: string, fi: *c.fuse_file_info) c_int;
@@ -340,6 +345,7 @@ const extrn = struct {
     extern fn lchown(pathname: string, owner: uid_t, group: gid_t) c_int;
     extern fn ftruncate(fd: c_int, length: off_t) c_int;
     extern fn truncate(path: string, length: off_t) c_int;
+    extern fn open(pathname: string, flags: c_int, ...) c_int;
 
     const dirent = extern struct {
         d_ino: ino_t,
