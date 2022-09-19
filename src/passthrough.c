@@ -43,20 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_rename(const char *from, const char *to, unsigned int flags)
-{
-    int res;
-
-    if (flags)
-        return -EINVAL;
-
-    res = rename(from, to);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_chmod(const char *path, mode_t mode, struct fuse_file_info *fi)
 {
     (void) fi;

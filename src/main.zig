@@ -215,7 +215,11 @@ export fn xmp_symlink(from: string, to: string) c_int {
 }
 
 // static int xmp_rename(const char *from, const char *to, unsigned int flags)
-extern fn xmp_rename(from: string, to: string, flags: c_uint) c_int;
+export fn xmp_rename(from: string, to: string, flags: c_uint) c_int {
+    if (flags > 0) return -@as(c_int, @enumToInt(linux.E.INVAL));
+    if (linux.rename(from, to) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_link(const char *from, const char *to)
 export fn xmp_link(from: string, to: string) c_int {
