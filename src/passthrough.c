@@ -43,29 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
-{
-    int fd;
-    int res;
-
-    (void) fi;
-    if (fi == NULL)
-        fd = open(path, O_WRONLY);
-    else
-        fd = fi->fh;
-    
-    if (fd == -1)
-        return -errno;
-
-    res = pwrite(fd, buf, size, offset);
-    if (res == -1)
-        res = -errno;
-
-    if (fi == NULL)
-        close(fd);
-    return res;
-}
-
 int xmp_statfs(const char *path, struct statvfs *stbuf)
 {
     int res;
