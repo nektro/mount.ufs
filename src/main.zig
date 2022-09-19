@@ -203,7 +203,10 @@ export fn xmp_unlink(path: string) c_int {
 }
 
 // static int xmp_rmdir(const char *path)
-extern fn xmp_rmdir(path: string) c_int;
+export fn xmp_rmdir(path: string) c_int {
+    if (linux.rmdir(path) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_symlink(const char *from, const char *to)
 extern fn xmp_symlink(from: string, to: string) c_int;
