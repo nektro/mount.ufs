@@ -79,7 +79,7 @@ const fuse_operations = extern struct {
     truncate: *const fn (string, off_t, *fuse_file_info) callconv(.C) c_int,
     create: *const fn (string, mode_t, *fuse_file_info) callconv(.C) c_int,
     open: *const fn (string, *fuse_file_info) callconv(.C) c_int,
-    read: *const fn (string, mstring, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
+    read: *const fn (string, mstring, size_t, off_t, ?*fuse_file_info) callconv(.C) c_int,
     write: *const fn (string, string, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
     statfs: *const fn (string, *extrn.Statvfs) callconv(.C) c_int,
     release: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
@@ -250,7 +250,16 @@ export fn xmp_open(path: string, fi: *fuse_file_info) c_int {
 }
 
 // static int xmp_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
-extern fn xmp_read(path: string, buf: mstring, size: size_t, offset: off_t, fi: *c.fuse_file_info) c_int;
+export fn xmp_read(path: string, buf: mstring, size: size_t, offset: off_t, fi: ?*fuse_file_info) c_int {
+    const fd: c_int = if (fi == null) extrn.open(path, linux.O.RDONLY) else @intCast(c_int, fi.?.fh);
+    if (fd == -1) return -errno;
+
+    const res = extrn.pread(fd, buf, size, offset);
+    if (res == -1) return errno;
+
+    _ = if (fi == null) extrn.close(fd);
+    return @intCast(c_int, res);
+}
 
 // static int xmp_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 extern fn xmp_write(path: string, buf: string, size: size_t, offset: off_t, fi: *c.fuse_file_info) c_int;
@@ -311,6 +320,7 @@ const extrn = struct {
     extern fn ftruncate(fd: c_int, length: off_t) c_int;
     extern fn truncate(path: string, length: off_t) c_int;
     extern fn open(pathname: string, flags: c_int, ...) c_int;
+    extern fn pread(fd: c_int, buf: mstring, count: size_t, offset: off_t) ssize_t;
 
     const dirent = extern struct {
         d_ino: ino_t,
