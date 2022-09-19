@@ -43,17 +43,6 @@
 #include <sys/xattr.h>
 #endif
 
-int xmp_statfs(const char *path, struct statvfs *stbuf)
-{
-    int res;
-
-    res = statvfs(path, stbuf);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_release(const char *path, struct fuse_file_info *fi)
 {
     (void) path;

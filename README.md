@@ -28,7 +28,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_open`
     - [x] `xmp_read`
     - [x] `xmp_write`
-    - [ ] `xmp_statfs`
+    - [x] `xmp_statfs`
     - [ ] `xmp_release`
     - [ ] `xmp_fsync`
     - [ ] `xmp_lseek`

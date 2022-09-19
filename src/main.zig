@@ -274,7 +274,10 @@ export fn xmp_write(path: string, buf: string, size: size_t, offset: off_t, fi: 
 }
 
 // static int xmp_statfs(const char *path, struct statvfs *stbuf)
-extern fn xmp_statfs(path: string, stbuf: *extrn.Statvfs) c_int;
+export fn xmp_statfs(path: string, stbuf: *extrn.Statvfs) c_int {
+    if (extrn.statvfs(path, stbuf) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_release(const char *path, struct fuse_file_info *fi)
 extern fn xmp_release(path: string, fi: *c.fuse_file_info) c_int;
@@ -331,6 +334,7 @@ const extrn = struct {
     extern fn open(pathname: string, flags: c_int, ...) c_int;
     extern fn pread(fd: c_int, buf: mstring, count: size_t, offset: off_t) ssize_t;
     extern fn pwrite(fd: c_int, buf: string, count: size_t, offset: off_t) ssize_t;
+    extern fn statvfs(path: string, buf: *Statvfs) c_int;
 
     const dirent = extern struct {
         d_ino: ino_t,
