@@ -133,7 +133,6 @@ pub const package_data = struct {
         .system_libs = &.{ "fuse3" },
     };
     pub var _i0xhsq87to7x = Package{
-        .c_source_files = &.{ "src/passthrough.c" },
     };
 };
 
