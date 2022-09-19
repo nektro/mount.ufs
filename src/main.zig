@@ -59,17 +59,6 @@ export const xmp_oper: fuse_operations = .{
     .release = xmp_release,
     .fsync = xmp_fsync,
     .lseek = xmp_lseek,
-
-    .utimens = xmp_utimens,
-
-    .fallocate = xmp_fallocate,
-
-    .setxattr = xmp_setxattr,
-    .getxattr = xmp_getxattr,
-    .listxattr = xmp_listxattr,
-    .removexattr = xmp_removexattr,
-
-    .copy_file_range = xmp_copy_file_range,
 };
 
 const fuse_operations = extern struct {
@@ -96,13 +85,6 @@ const fuse_operations = extern struct {
     release: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
     fsync: *const fn (string, c_int, *c.fuse_file_info) callconv(.C) c_int,
     lseek: *const fn (string, off_t, c_int, *c.fuse_file_info) callconv(.C) off_t,
-    utimens: *const fn (string, *const [2]timespec, *c.fuse_file_info) callconv(.C) c_int,
-    fallocate: *const fn (string) callconv(.C) c_int,
-    setxattr: *const fn (string, string, string, size_t, c_int) callconv(.C) c_int,
-    getxattr: *const fn (string, string, mstring, size_t) callconv(.C) c_int,
-    listxattr: *const fn (string, mstring, size_t) callconv(.C) c_int,
-    removexattr: *const fn (string, string) callconv(.C) c_int,
-    copy_file_range: *const fn (string, *c.fuse_file_info, off_t, string, *c.fuse_file_info, off_t, size_t, c_int) callconv(.C) ssize_t,
 };
 
 // static void *xmp_init(struct fuse_conn_info *conn, struct fuse_config *cfg)
@@ -284,28 +266,6 @@ extern fn xmp_fsync(path: string, isdatasync: c_int, fi: *c.fuse_file_info) c_in
 
 // static off_t xmp_lseek(const char *path, off_t off, int whence, struct fuse_file_info *fi)
 extern fn xmp_lseek(path: string, off: off_t, whence: c_int, fi: *c.fuse_file_info) off_t;
-
-//ifdef HAVE_UTIMENSAT
-// static int xmp_utimens(const char *path, const struct timespec ts[2], struct fuse_file_info *fi)
-extern fn xmp_utimens(path: string, ts: *const [2]timespec, fi: *c.fuse_file_info) c_int;
-
-//ifdef HAVE_POSIX_FALLOCATE
-// static int xmp_fallocate(const char *path, int mode, off_t offset, off_t length, struct fuse_file_info *fi)
-extern fn xmp_fallocate(path: string) c_int;
-
-//ifdef HAVE_SETXATTR
-// static int xmp_setxattr(const char *path, const char *name, const char *value, size_t size, int flags)
-// static int xmp_getxattr(const char *path, const char *name, char *value, size_t size)
-// static int xmp_listxattr(const char *path, char *list, size_t size)
-// static int xmp_removexattr(const char *path, const char *name)
-extern fn xmp_setxattr(path: string, name: string, value: string, size: size_t, flags: c_int) c_int;
-extern fn xmp_getxattr(path: string, name: string, value: mstring, size: size_t) c_int;
-extern fn xmp_listxattr(path: string, list: mstring, size: size_t) c_int;
-extern fn xmp_removexattr(path: string, name: string) c_int;
-
-//ifdef HAVE_COPY_FILE_RANGE
-// static ssize_t xmp_copy_file_range(const char *path_in, struct fuse_file_info *fi_in, off_t offset_in, const char *path_out, struct fuse_file_info *fi_out, off_t offset_out, size_t len, int flags)
-extern fn xmp_copy_file_range(path_in: string, fi_in: *c.fuse_file_info, offset_in: off_t, path_out: string, fi_out: *c.fuse_file_info, offset_out: off_t, len: size_t, flags: c_int) ssize_t;
 
 //
 //

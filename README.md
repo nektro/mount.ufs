@@ -32,13 +32,6 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [ ] `xmp_release`
     - [ ] `xmp_fsync`
     - [ ] `xmp_lseek`
-    - [ ] `xmp_utimens`
-    - [ ] `xmp_fallocate`
-    - [ ] `xmp_setxattr`
-    - [ ] `xmp_getxattr`
-    - [ ] `xmp_listxattr`
-    - [ ] `xmp_removexattr`
-    - [ ] `xmp_copy_file_range`
 - [ ] Read access UFS
 - [ ] Write access UFS
 

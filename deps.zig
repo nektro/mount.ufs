@@ -134,7 +134,6 @@ pub const package_data = struct {
     };
     pub var _i0xhsq87to7x = Package{
         .c_source_files = &.{ "src/passthrough.c" },
-        .c_source_flags = &.{ "-DHAVE_UTIMENSAT", "-DHAVE_POSIX_FALLOCATE", "-DHAVE_SETXATTR", "-DHAVE_COPY_FILE_RANGE" },
     };
 };
 
