@@ -218,7 +218,10 @@ export fn xmp_symlink(from: string, to: string) c_int {
 extern fn xmp_rename(from: string, to: string, flags: c_uint) c_int;
 
 // static int xmp_link(const char *from, const char *to)
-extern fn xmp_link(from: string, to: string) c_int;
+export fn xmp_link(from: string, to: string) c_int {
+    if (extrn.link(from, to) == -1) return -errno;
+    return 0;
+}
 
 // static int xmp_chmod(const char *path, mode_t mode, struct fuse_file_info *fi)
 extern fn xmp_chmod(path: string, mode: mode_t, fi: *c.fuse_file_info) c_int;
@@ -319,6 +322,7 @@ const extrn = struct {
     extern fn symlinkat(oldpath: ?string, newdirfd: c_int, newpath: string) c_int;
     extern fn mknodat(dirfd: c_int, pathname: string, mode: mode_t, dev: dev_t) c_int;
     extern fn mkdir(path: string, mode: mode_t) c_int;
+    extern fn link(oldpath: string, newpath: string) c_int;
 
     const dirent = extern struct {
         d_ino: ino_t,

@@ -20,7 +20,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_rmdir`
     - [x] `xmp_symlink`
     - [ ] `xmp_rename`
-    - [ ] `xmp_link`
+    - [x] `xmp_link`
     - [ ] `xmp_chmod`
     - [ ] `xmp_chown`
     - [ ] `xmp_truncate`

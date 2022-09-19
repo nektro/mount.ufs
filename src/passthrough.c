@@ -57,17 +57,6 @@ int xmp_rename(const char *from, const char *to, unsigned int flags)
     return 0;
 }
 
-int xmp_link(const char *from, const char *to)
-{
-    int res;
-
-    res = link(from, to);
-    if (res == -1)
-        return -errno;
-
-    return 0;
-}
-
 int xmp_chmod(const char *path, mode_t mode, struct fuse_file_info *fi)
 {
     (void) fi;
