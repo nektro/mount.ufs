@@ -291,9 +291,6 @@ extern fn xmp_copy_file_range(path_in: string, fi_in: *c.fuse_file_info, offset_
 
 extern threadlocal var errno: c_int;
 const extrn = struct {
-    //
-    // missing from stdlib
-
     const Statvfs = extern struct {
         f_bsize: c_ulong,
         f_frsize: c_ulong,
@@ -318,9 +315,6 @@ const extrn = struct {
     extern fn readdir(dirp: *DIR) ?*dirent;
     extern fn closedir(dirp: *DIR) c_int;
     extern fn mkfifoat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
-
-    //
-    // wrong in stdlib
     extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
     extern fn access(pathname: string, mode: c_int) c_int;
     extern fn readlink(path: string, buf: mstring, bufsiz: size_t) ssize_t;
