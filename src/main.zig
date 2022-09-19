@@ -92,7 +92,7 @@ const fuse_operations = extern struct {
     open: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
     read: *const fn (string, mstring, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
     write: *const fn (string, string, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
-    statfs: *const fn (string, *Statvfs) callconv(.C) c_int,
+    statfs: *const fn (string, *extrn.Statvfs) callconv(.C) c_int,
     release: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
     fsync: *const fn (string, c_int, *c.fuse_file_info) callconv(.C) c_int,
     lseek: *const fn (string, off_t, c_int, *c.fuse_file_info) callconv(.C) off_t,
@@ -124,7 +124,7 @@ export fn xmp_init(conn: *c.fuse_conn_info, cfg: *c.fuse_config) ?*anyopaque {
 export fn xmp_getattr(path: string, stbuf: *linux.Stat, fi: *c.fuse_file_info) c_int {
     _ = fi;
 
-    if (lstat(path, stbuf) == -1) {
+    if (extrn.lstat(path, stbuf) == -1) {
         return -errno;
     }
     return 0;
@@ -132,7 +132,7 @@ export fn xmp_getattr(path: string, stbuf: *linux.Stat, fi: *c.fuse_file_info) c
 
 // static int xmp_access(const char *path, int mask)
 export fn xmp_access(path: string, mask: c_int) c_int {
-    if (access(path, mask) == -1) {
+    if (extrn.access(path, mask) == -1) {
         return -errno;
     }
     return 0;
@@ -140,7 +140,7 @@ export fn xmp_access(path: string, mask: c_int) c_int {
 
 // static int xmp_readlink(const char *path, char *buf, size_t size)
 export fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int {
-    switch (readlink(path, buf, size - 1)) {
+    switch (extrn.readlink(path, buf, size - 1)) {
         -1 => return -errno,
         else => |res| buf[@intCast(usize, res)] = 0,
     }
@@ -153,10 +153,10 @@ export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, 
     _ = fi;
     _ = flags;
 
-    const dp = opendir(path) orelse return -errno;
-    defer _ = closedir(dp);
+    const dp = extrn.opendir(path) orelse return -errno;
+    defer _ = extrn.closedir(dp);
 
-    while (readdir(dp)) |de| {
+    while (extrn.readdir(dp)) |de| {
         var st = std.mem.zeroes(c.struct_stat);
         st.st_ino = de.d_ino;
         st.st_mode = @as(c_uint, de.d_type) << 12;
@@ -174,25 +174,25 @@ export fn xmp_mknod(path: string, mode: mode_t, rdev: dev_t) c_int {
 export fn mknod_wrapper(dirfd: c_int, path: string, link: ?string, mode: mode_t, rdev: dev_t) c_int {
     if (linux.S.ISREG(mode)) {
         const O = linux.O;
-        const res = openat(dirfd, path, O.CREAT | O.EXCL | O.WRONLY, mode);
-        if (res > 0) return close(res);
+        const res = extrn.openat(dirfd, path, O.CREAT | O.EXCL | O.WRONLY, mode);
+        if (res > 0) return extrn.close(res);
         return res;
     }
     if (linux.S.ISDIR(mode)) {
-        return mkdirat(dirfd, path, mode);
+        return extrn.mkdirat(dirfd, path, mode);
     }
     if (linux.S.ISLNK(mode)) {
-        return symlinkat(link, dirfd, path);
+        return extrn.symlinkat(link, dirfd, path);
     }
     if (linux.S.ISFIFO(mode)) {
-        return mkfifoat(dirfd, path, mode);
+        return extrn.mkfifoat(dirfd, path, mode);
     }
-    return mknodat(dirfd, path, mode, rdev);
+    return extrn.mknodat(dirfd, path, mode, rdev);
 }
 
 // static int xmp_mkdir(const char *path, mode_t mode)
 export fn xmp_mkdir(path: string, mode: mode_t) c_int {
-    if (mkdir(path, mode) == -1) return -errno;
+    if (extrn.mkdir(path, mode) == -1) return -errno;
     return 0;
 }
 
@@ -242,7 +242,7 @@ extern fn xmp_read(path: string, buf: mstring, size: size_t, offset: off_t, fi: 
 extern fn xmp_write(path: string, buf: string, size: size_t, offset: off_t, fi: *c.fuse_file_info) c_int;
 
 // static int xmp_statfs(const char *path, struct statvfs *stbuf)
-extern fn xmp_statfs(path: string, stbuf: *Statvfs) c_int;
+extern fn xmp_statfs(path: string, stbuf: *extrn.Statvfs) c_int;
 
 // static int xmp_release(const char *path, struct fuse_file_info *fi)
 extern fn xmp_release(path: string, fi: *c.fuse_file_info) c_int;
@@ -276,50 +276,55 @@ extern fn xmp_removexattr(path: string, name: string) c_int;
 extern fn xmp_copy_file_range(path_in: string, fi_in: *c.fuse_file_info, offset_in: off_t, path_out: string, fi_out: *c.fuse_file_info, offset_out: off_t, len: size_t, flags: c_int) ssize_t;
 
 //
-// missing from stdlib
-
-const Statvfs = extern struct {
-    f_bsize: c_ulong,
-    f_frsize: c_ulong,
-    f_blocks: fsblkcnt_t,
-    f_bfree: fsblkcnt_t,
-    f_bavail: fsblkcnt_t,
-    f_files: fsfilcnt_t,
-    f_ffree: fsfilcnt_t,
-    f_favail: fsfilcnt_t,
-    f_fsid: c_ulong,
-    f_flag: c_ulong,
-    f_namemax: c_ulong,
-};
-const fsblkcnt_t = c_ulonglong;
-const fsfilcnt_t = c_ulonglong;
-comptime {
-    std.debug.assert(@sizeOf(usize) == @sizeOf(u64)); // only 64bit host is currently supported
-    // on 32bit fsblkcnt_t/fsfilcnt_t are c_ulong
-}
-extern threadlocal var errno: c_int;
-const DIR = opaque {};
-extern fn opendir(name: string) ?*DIR;
-extern fn readdir(dirp: *DIR) ?*dirent;
-extern fn closedir(dirp: *DIR) c_int;
-extern fn mkfifoat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
-
 //
-// wrong in stdlib
-extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
-extern fn access(pathname: string, mode: c_int) c_int;
-extern fn readlink(path: string, buf: mstring, bufsiz: size_t) ssize_t;
-extern fn openat(dirfd: c_int, pathname: string, flags: c_int, mode: mode_t) c_int;
-extern fn close(fd: c_int) c_int;
-extern fn mkdirat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
-extern fn symlinkat(oldpath: ?string, newdirfd: c_int, newpath: string) c_int;
-extern fn mknodat(dirfd: c_int, pathname: string, mode: mode_t, dev: dev_t) c_int;
-extern fn mkdir(path: [*:0]const u8, mode: mode_t) c_int;
 
-const dirent = extern struct {
-    d_ino: ino_t,
-    d_off: off_t,
-    d_reclen: c_ushort,
-    d_type: u8,
-    d_name: *const [256]u8,
+extern threadlocal var errno: c_int;
+const extrn = struct {
+    //
+    // missing from stdlib
+
+    const Statvfs = extern struct {
+        f_bsize: c_ulong,
+        f_frsize: c_ulong,
+        f_blocks: fsblkcnt_t,
+        f_bfree: fsblkcnt_t,
+        f_bavail: fsblkcnt_t,
+        f_files: fsfilcnt_t,
+        f_ffree: fsfilcnt_t,
+        f_favail: fsfilcnt_t,
+        f_fsid: c_ulong,
+        f_flag: c_ulong,
+        f_namemax: c_ulong,
+    };
+    const fsblkcnt_t = c_ulonglong;
+    const fsfilcnt_t = c_ulonglong;
+    comptime {
+        std.debug.assert(@sizeOf(usize) == @sizeOf(u64)); // only 64bit host is currently supported
+        // on 32bit fsblkcnt_t/fsfilcnt_t are c_ulong
+    }
+    const DIR = opaque {};
+    extern fn opendir(name: string) ?*DIR;
+    extern fn readdir(dirp: *DIR) ?*dirent;
+    extern fn closedir(dirp: *DIR) c_int;
+    extern fn mkfifoat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
+
+    //
+    // wrong in stdlib
+    extern fn lstat(pathname: string, statbuf: *linux.Stat) c_int;
+    extern fn access(pathname: string, mode: c_int) c_int;
+    extern fn readlink(path: string, buf: mstring, bufsiz: size_t) ssize_t;
+    extern fn openat(dirfd: c_int, pathname: string, flags: c_int, mode: mode_t) c_int;
+    extern fn close(fd: c_int) c_int;
+    extern fn mkdirat(dirfd: c_int, pathname: string, mode: mode_t) c_int;
+    extern fn symlinkat(oldpath: ?string, newdirfd: c_int, newpath: string) c_int;
+    extern fn mknodat(dirfd: c_int, pathname: string, mode: mode_t, dev: dev_t) c_int;
+    extern fn mkdir(path: string, mode: mode_t) c_int;
+
+    const dirent = extern struct {
+        d_ino: ino_t,
+        d_off: off_t,
+        d_reclen: c_ushort,
+        d_type: u8,
+        d_name: *const [256]u8,
+    };
 };
