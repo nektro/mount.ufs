@@ -287,7 +287,13 @@ export fn xmp_release(path: string, fi: *fuse_file_info) c_int {
 }
 
 // static int xmp_fsync(const char *path, int isdatasync, struct fuse_file_info *fi)
-extern fn xmp_fsync(path: string, isdatasync: c_int, fi: *c.fuse_file_info) c_int;
+export fn xmp_fsync(path: string, isdatasync: c_int, fi: *c.fuse_file_info) c_int {
+    // Just a stub. This method is optional and can safely be left unimplemented.
+    _ = path;
+    _ = isdatasync;
+    _ = fi;
+    return 0;
+}
 
 // static off_t xmp_lseek(const char *path, off_t off, int whence, struct fuse_file_info *fi)
 extern fn xmp_lseek(path: string, off: off_t, whence: c_int, fi: *c.fuse_file_info) off_t;
