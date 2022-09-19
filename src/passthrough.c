@@ -58,18 +58,6 @@ int xmp_utimens(const char *path, const struct timespec ts[2], struct fuse_file_
 }
 #endif
 
-int xmp_open(const char *path, struct fuse_file_info *fi)
-{
-    int res;
-
-    res = open(path, fi->flags);
-    if (res == -1)
-        return -errno;
-
-    fi->fh = res;
-    return 0;
-}
-
 int xmp_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     int fd;

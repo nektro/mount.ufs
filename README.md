@@ -25,7 +25,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
     - [x] `xmp_chown`
     - [x] `xmp_truncate`
     - [x] `xmp_create`
-    - [ ] `xmp_open`
+    - [x] `xmp_open`
     - [ ] `xmp_read`
     - [ ] `xmp_write`
     - [ ] `xmp_statfs`

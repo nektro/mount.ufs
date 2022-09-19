@@ -89,7 +89,7 @@ const fuse_operations = extern struct {
     chown: *const fn (string, uid_t, gid_t, *c.fuse_file_info) callconv(.C) c_int,
     truncate: *const fn (string, off_t, *fuse_file_info) callconv(.C) c_int,
     create: *const fn (string, mode_t, *fuse_file_info) callconv(.C) c_int,
-    open: *const fn (string, *c.fuse_file_info) callconv(.C) c_int,
+    open: *const fn (string, *fuse_file_info) callconv(.C) c_int,
     read: *const fn (string, mstring, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
     write: *const fn (string, string, size_t, off_t, *c.fuse_file_info) callconv(.C) c_int,
     statfs: *const fn (string, *extrn.Statvfs) callconv(.C) c_int,
@@ -260,7 +260,12 @@ export fn xmp_create(path: string, mode: mode_t, fi: *fuse_file_info) c_int {
 }
 
 // static int xmp_open(const char *path, struct fuse_file_info *fi)
-extern fn xmp_open(path: string, fi: *c.fuse_file_info) c_int;
+export fn xmp_open(path: string, fi: *fuse_file_info) c_int {
+    const res = extrn.open(path, fi.flags);
+    if (res == -1) return -errno;
+    fi.fh = @intCast(u64, res);
+    return 0;
+}
 
 // static int xmp_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 extern fn xmp_read(path: string, buf: mstring, size: size_t, offset: off_t, fi: *c.fuse_file_info) c_int;
