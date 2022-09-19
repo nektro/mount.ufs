@@ -350,18 +350,22 @@ const extrn = struct {
     };
 };
 
-const fuse_file_info = packed struct {
+const fuse_file_info = extern struct {
     flags: c_int,
-    writepage: u1,
-    direct_io: u1,
-    keep_cache: u1,
-    flush: u1,
-    nonseekable: u1,
-    flock_release: u1,
-    cache_readdir: u1,
-    noflush: u1,
-    padding: u24,
-    padding2: u32,
+    bitfield0: packed struct(c_uint) {
+        writepage: u1,
+        direct_io: u1,
+        keep_cache: u1,
+        flush: u1,
+        nonseekable: u1,
+        flock_release: u1,
+        cache_readdir: u1,
+        noflush: u1,
+        padding: u24,
+    },
+    bitfield1: packed struct(c_uint) {
+        padding2: u32,
+    },
     fh: u64,
     lock_owner: u64,
     poll_events: u32,
