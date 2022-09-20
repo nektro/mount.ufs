@@ -86,7 +86,7 @@ const fuse_operations = extern struct {
     listxattr: ?*const fn (string, mstring, size_t) callconv(.C) c_int = null,
     removexattr: ?*const fn (string, string) callconv(.C) c_int = null,
     opendir: ?*const fn (string, ?*fuse_file_info) callconv(.C) c_int = null,
-    readdir: ?*const fn (string, *anyopaque, c.fuse_fill_dir_t, off_t, *fuse_file_info, c.fuse_readdir_flags) callconv(.C) c_int = null,
+    readdir: ?*const fn (string, *anyopaque, fuse_fill_dir_t, off_t, *fuse_file_info, c.fuse_readdir_flags) callconv(.C) c_int = null,
     releasedir: ?*const fn (string, ?*fuse_file_info) callconv(.C) c_int = null,
     fsyncdir: ?*const fn (string, c_int, ?*fuse_file_info) callconv(.C) c_int = null,
     access: ?*const fn (string, c_int) callconv(.C) c_int = null,
@@ -105,6 +105,8 @@ const fuse_operations = extern struct {
     copy_file_range: ?*const fn (string, ?*fuse_file_info, off_t, string, ?*fuse_file_info, off_t, size_t, c_int) callconv(.C) ssize_t = null,
     lseek: ?*const fn (string, off_t, c_int, ?*fuse_file_info) callconv(.C) off_t = null,
 };
+
+const fuse_fill_dir_t = *const fn (*anyopaque, string, *const c.struct_stat, off_t, c.fuse_fill_dir_flags) callconv(.C) c_int;
 
 // static void *xmp_init(struct fuse_conn_info *conn, struct fuse_config *cfg)
 export fn xmp_init(conn: *c.fuse_conn_info, cfg: *c.fuse_config) ?*anyopaque {
@@ -149,7 +151,7 @@ export fn xmp_readlink(path: string, buf: mstring, size: size_t) c_int {
 }
 
 // static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi, enum fuse_readdir_flags flags)
-export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, offset: off_t, fi: *fuse_file_info, flags: c.fuse_readdir_flags) c_int {
+export fn xmp_readdir(path: string, buf: *anyopaque, filler: fuse_fill_dir_t, offset: off_t, fi: *fuse_file_info, flags: c.fuse_readdir_flags) c_int {
     _ = offset;
     _ = fi;
     _ = flags;
@@ -161,7 +163,7 @@ export fn xmp_readdir(path: string, buf: *anyopaque, filler: c.fuse_fill_dir_t, 
         var st = std.mem.zeroes(c.struct_stat);
         st.st_ino = de.d_ino;
         st.st_mode = @as(c_uint, de.d_type) << 12;
-        if (filler.?(buf, de.d_name, &st, 0, 0) > 0) break;
+        if (filler(buf, @ptrCast([*:0]u8, &de.d_name), &st, 0, 0) > 0) break;
     }
     return 0;
 }
@@ -380,7 +382,7 @@ const extrn = struct {
         d_off: off_t,
         d_reclen: c_ushort,
         d_type: u8,
-        d_name: *const [256]u8,
+        d_name: [256]u8,
     };
 };
 
