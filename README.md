@@ -8,30 +8,7 @@ Entirely WIP and experimental until further notice. Any research notes or PRs we
 
 ## Current Status
 - [x] Get libfuse passthrough example building with Zig
-- [ ] Port passthrough code to be pure Zig
-    - [x] `xmp_init`
-    - [x] `xmp_getattr`
-    - [x] `xmp_access`
-    - [x] `xmp_readlink`
-    - [x] `xmp_readdir`
-    - [x] `xmp_mknod`
-    - [x] `xmp_mkdir`
-    - [x] `xmp_unlink`
-    - [x] `xmp_rmdir`
-    - [x] `xmp_symlink`
-    - [x] `xmp_rename`
-    - [x] `xmp_link`
-    - [x] `xmp_chmod`
-    - [x] `xmp_chown`
-    - [x] `xmp_truncate`
-    - [x] `xmp_create`
-    - [x] `xmp_open`
-    - [x] `xmp_read`
-    - [x] `xmp_write`
-    - [x] `xmp_statfs`
-    - [x] `xmp_release`
-    - [x] `xmp_fsync`
-    - [x] `xmp_lseek`
+- [x] Port passthrough code to be pure Zig
 - [ ] Read access UFS
 - [ ] Write access UFS
 
